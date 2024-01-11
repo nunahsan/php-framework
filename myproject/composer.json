@@ -1,0 +1,13 @@
+{
+    "autoload": {
+        "psr-4": {
+            "Api\\V1\\": "app/api/v1",
+            "Api\\V2\\": "app/api/v2",
+            "Plugins\\": "app/plugins",
+            "Helpers\\": "app/helpers"
+        }
+    },
+    "require": {
+        "mongodb/mongodb": "^1.17"
+    }
+}
