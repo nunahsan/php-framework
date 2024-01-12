@@ -11,7 +11,6 @@ services:
       - ./nginx-default.conf:/etc/nginx/conf.d/default.conf
     links:
       - routing
-      - module1
     networks:
       - network1
 
@@ -55,6 +54,33 @@ services:
       - MONGO_CONN=mongodb://host_machine:27017,host_machine:27018,host_machine:27019
       - MONGO_DB=surex
       - SERVERNAME=module1
+    expose:
+      - 80
+    networks:
+      - network1
+    command: bash -c "composer update && php -S 0.0.0.0:80 index.php"
+
+
+  module2:
+    container_name: module2
+    image: php82-cli
+    working_dir: /app
+    volumes:
+      - ./myproject:/app
+      - /app/vendor/
+    extra_hosts:
+      - host_machine:host-gateway
+    environment:
+      - ENV=local
+      - MYSQL_DATABASE=test
+      - MYSQL_USER=user1
+      - MYSQL_PASSWORD=SyXrYVdrF9XehuurXsK3sHhl
+      - MYSQL_HOST=host_machine
+      - MONGO_CONN=mongodb://host_machine:27017,host_machine:27018,host_machine:27019
+      - MONGO_DB=surex
+      - SERVERNAME=module2
+    expose:
+      - 80
     networks:
       - network1
     command: bash -c "composer update && php -S 0.0.0.0:80 index.php"
