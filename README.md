@@ -3,12 +3,15 @@ Simple PHP Framework based on composer PSR-04 standard
 
 # Installation
 1. Generate custom docker image
-``` docker build -t php82-fpm . ```
+```
+docker build -t php82-cli -f Dockerfile-Php-Cli .
+docker build -t php82-fpm -f Dockerfile-Php-Fpm .
+```
 
-2. Up the container
+3. Up the container
 ``` docker compose up -d ```
 
-3. Install composer and required library
+4. Install composer and required library
 ``` docker compose exec php-fpm composer install ```
 
 # Testing
