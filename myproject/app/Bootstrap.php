@@ -33,7 +33,7 @@ class Bootstrap
         $this->request = array_merge($data_json ?? [], $data_post, $data_get);
 
         // $this->path = $_SERVER['PATH_INFO'] ?? '/';
-        $this->path = explode('?',$_SERVER['REQUEST_URI'])[0];
+        $this->path = explode('?', $_SERVER['REQUEST_URI'])[0];
     }
 
     private function handle_plugins()
@@ -59,12 +59,15 @@ class Bootstrap
         }
 
         try {
+            $module = ROUTES[$this->path]['module'] ?? false;
+            if ($module) {
+                return $this->call_module($module);
+            }
+
             $nameSpace = '\\' . ROUTES[$this->path]['namespace'] . '\\' . ROUTES[$this->path]['class'];
             $action = ROUTES[$this->path]['action'];
-
             $this->handle_rules(ROUTES[$this->path]['params'] ?? []);
-
-            $cls = new $nameSpace();
+            $cls = new $nameSpace($this->request);
             $cls->$action();
         } catch (\Throwable $e) {
             //here developer can send to telegram as notifiction
@@ -121,6 +124,20 @@ class Bootstrap
             }
         }
     }
+
+    private function call_module($module)
+    {
+        $ch = curl_init();
+        $url = $module . ":80/v1/user/login";
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $this->request);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+        $response = curl_exec($ch);
+        echo $response;
+    }
 }
 
 //common functions 
@@ -129,7 +146,8 @@ function response(bool $status, string $message, array $data = [])
     echo json_encode([
         'status' => $status,
         'message' => $message == '' ? ($status ? 'Granted' : 'Denied') : $message,
-        'data' => $data
+        'data' => $data,
+        'server' => getenv('SERVERNAME')
     ]);
     exit();
 }
