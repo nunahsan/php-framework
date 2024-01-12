@@ -10,10 +10,13 @@ services:
       - ./myproject:/app
       - ./nginx-default.conf:/etc/nginx/conf.d/default.conf
     links:
-      - php-fpm
+      - routing
+      - module1
+    networks:
+      - network1
 
-  php-fpm:
-    container_name: php-fpm
+  routing:
+    container_name: routing
     image: php82-fpm
     working_dir: /app
     volumes:
@@ -29,4 +32,34 @@ services:
       - MYSQL_HOST=host_machine
       - MONGO_CONN=mongodb://host_machine:27017,host_machine:27018,host_machine:27019
       - MONGO_DB=surex
-    #run first time : docker compose exec php-fpm composer install
+      - SERVERNAME=routing
+    networks:
+      - network1
+    command: bash -c "composer install && docker-php-entrypoint php-fpm"
+
+  module1:
+    container_name: module1
+    image: php82-cli
+    working_dir: /app
+    volumes:
+      - ./myproject:/app
+      - /app/vendor/
+    extra_hosts:
+      - host_machine:host-gateway
+    environment:
+      - ENV=local
+      - MYSQL_DATABASE=test
+      - MYSQL_USER=user1
+      - MYSQL_PASSWORD=SyXrYVdrF9XehuurXsK3sHhl
+      - MYSQL_HOST=host_machine
+      - MONGO_CONN=mongodb://host_machine:27017,host_machine:27018,host_machine:27019
+      - MONGO_DB=surex
+      - SERVERNAME=module1
+    networks:
+      - network1
+    command: bash -c "composer update && php -S 0.0.0.0:80 index.php"
+
+networks:
+  network1:
+    driver: bridge
+    name: network1
