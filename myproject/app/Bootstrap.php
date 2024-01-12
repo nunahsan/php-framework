@@ -128,10 +128,10 @@ class Bootstrap
     private function call_module($module)
     {
         $ch = curl_init();
-        $url = $module . ":80/v1/user/login";
+        $url = $module . ":80" . $this->path;
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $this->request);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($this->request));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
         curl_setopt($ch, CURLOPT_TIMEOUT, 20);
